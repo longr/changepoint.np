@@ -605,6 +605,7 @@ setMethod("param", "cpt.range", function(object,ncpts=NA,shape,...) {
     return(cbind(beta,thetajpo,thetaj))
   }
   
+  if(cpttype(object)!="nonparametric (empirical_distribution)"){
   if(cpttype(object)=="mean"){
     param.est<-list(mean=param.mean(object,cpts))
   }
@@ -655,6 +656,7 @@ setMethod("param", "cpt.range", function(object,ncpts=NA,shape,...) {
       stop("Unknown test statistic for a change in mean+ar")
     }
   }
+
   else{
     stop("Unknown changepoint type, must be 'mean', 'variance', 'mean and variance', 'trend', 'meanar' or 'trendar'")
   }
@@ -665,7 +667,7 @@ setMethod("param", "cpt.range", function(object,ncpts=NA,shape,...) {
   out=new('cpt.range')
   param.est(out)=param.est
   return(out)
-})
+}})
 
 setMethod("param", "cpt.reg", function(object,shape,...) {			
   param.norm=function(object){
@@ -754,53 +756,59 @@ setMethod("show","cpt.reg",function(object){
 })
 
 # plot functions
-setMethod("plot","cpt",function(x,cpt.col='red',cpt.width=1,cpt.style=1,...){
-  if(length(param.est(x))==0){# i.e. parameter.estimates=FALSE in call
-    cat('Calculating parameter estimates...')
-    object=param(x)
-    cat('done.\n')
-  }
-  plot(data.set.ts(x),...)
-  if(cpttype(x)=="variance"){
-    abline(v=index(data.set.ts(x))[cpts(x)],col=cpt.col,lwd=cpt.width,lty=cpt.style)
-  }
-  else if(cpttype(x)=="mean"  ||  cpttype(x)=="mean and variance"){
-    #nseg=length(cpts(x))+1
-    cpts=c(0,x@cpts)
-    if((test.stat(x)=="Normal")||(test.stat(x)=="CUSUM")){
-      means=param.est(x)$mean
-    }
-    else if(test.stat(x)=="Gamma"){
-      means=param.est(x)$scale*param.est(x)$shape
-    }
-    else if(test.stat(x)=="Exponential"){
-      means=1/param.est(x)$rate
-    }
-    else if(test.stat(x)=="Poisson"){
-      means=param.est(x)$lambda
+  setMethod("plot","cpt",function(x,cpt.col='red',cpt.width=1,cpt.style=1,...){
+    if(cpttype(x)== "nonparametric (empirical_distribution)"){
+      plot(data.set.ts(x),...)
+      abline(v=index(data.set.ts(x))[cpts(x)],col=cpt.col,lwd=cpt.width,lty=cpt.style)
     }
     else{
-      stop('Invalid Changepoint test statistic')
+      
+    if(length(param.est(x))==0){# i.e. parameter.estimates=FALSE in call
+      cat('Calculating parameter estimates...')
+      object=param(x)
+      cat('done.\n')
     }
-    for(i in 1:nseg(x)){
-      segments(index(data.set.ts(x))[cpts[i]+1],means[i],index(data.set.ts(x))[cpts[i+1]],means[i],col=cpt.col,lwd=cpt.width,lty=cpt.style)
+    plot(data.set.ts(x),...)
+    if(cpttype(x)=="variance"){
+      abline(v=index(data.set.ts(x))[cpts(x)],col=cpt.col,lwd=cpt.width,lty=cpt.style)
     }
-  }
-  else if(cpttype(x)=="trend"){
-    cpts=c(0,x@cpts)
-    intercept=rep(param.est(x)$thetaS,x@cpts-c(0,cpts(x)))
-    slope=rep(param.est(x)$thetaT-param.est(x)$thetaS,x@cpts-c(0,cpts(x)))/rep(x@cpts-c(0,cpts(x)),x@cpts-c(0,cpts(x)))
-    cptn=rep(c(0,cpts(x)),x@cpts-c(0,cpts(x)))
-    n=length(data.set(x))
-    means=intercept+slope*((1:n)-cptn)
-    for(i in 1:nseg(x)){
-      segments(index(data.set.ts(x))[cpts[i]+1],means[cpts[i]+1],index(data.set.ts(x))[cpts[i+1]],means[cpts[i+1]],col=cpt.col,lwd=cpt.width,lty=cpt.style)
+    else if(cpttype(x)=="mean"  ||  cpttype(x)=="mean and variance"){
+      #nseg=length(cpts(x))+1
+      cpts=c(0,x@cpts)
+      if((test.stat(x)=="Normal")||(test.stat(x)=="CUSUM")){
+        means=param.est(x)$mean
+      }
+      else if(test.stat(x)=="Gamma"){
+        means=param.est(x)$scale*param.est(x)$shape
+      }
+      else if(test.stat(x)=="Exponential"){
+        means=1/param.est(x)$rate
+      }
+      else if(test.stat(x)=="Poisson"){
+        means=param.est(x)$lambda
+      }
+      else{
+        stop('Invalid Changepoint test statistic')
+      }
+      for(i in 1:nseg(x)){
+        segments(index(data.set.ts(x))[cpts[i]+1],means[i],index(data.set.ts(x))[cpts[i+1]],means[i],col=cpt.col,lwd=cpt.width,lty=cpt.style)
+      }
     }
-  }
-  else{
-    stop('Invalid Changepoint Type for plotting.\n Can only plot mean, variance, mean and variance')
-  }
-})
+    else if(cpttype(x)=="trend"){
+      cpts=c(0,x@cpts)
+      intercept=rep(param.est(x)$thetaS,x@cpts-c(0,cpts(x)))
+      slope=rep(param.est(x)$thetaT-param.est(x)$thetaS,x@cpts-c(0,cpts(x)))/rep(x@cpts-c(0,cpts(x)),x@cpts-c(0,cpts(x)))
+      cptn=rep(c(0,cpts(x)),x@cpts-c(0,cpts(x)))
+      n=length(data.set(x))
+      means=intercept+slope*((1:n)-cptn)
+      for(i in 1:nseg(x)){
+        segments(index(data.set.ts(x))[cpts[i]+1],means[cpts[i]+1],index(data.set.ts(x))[cpts[i+1]],means[cpts[i+1]],col=cpt.col,lwd=cpt.width,lty=cpt.style)
+      }
+    }
+    else{
+      stop('Invalid Changepoint Type for plotting.\n Can only plot mean, variance, mean and variance')
+    }
+  }})
 
 setMethod("plot","cpt.range",function(x,ncpts=NA,diagnostic=FALSE,cpt.col='red',cpt.width=1,cpt.style=1,...){
   if(diagnostic==TRUE){
@@ -821,42 +829,46 @@ setMethod("plot","cpt.range",function(x,ncpts=NA,diagnostic=FALSE,cpt.col='red',
       stop(paste("Your input object doesn't have a segmentation with the requested number of changepoints.\n Possible ncpts are: "),paste(ncpts.full,collapse=','))
     }
     cpts.to.plot=cpts.full(x)[row,1:ncpts]
-    if(test.stat(x)=="Gamma"){
+    if(cpttype(x)== "nonparametric (empirical_distribution)"){
+      abline(v=index(data.set.ts(x))[cpts.to.plot],col=cpt.col,lwd=cpt.width,lty=cpt.style)
+    }
+    else{
+      if(test.stat(x)=="Gamma"){
       param.est=param(x,ncpts,shape=param.est(x)$shape)
     }
     else{
       param.est=param(x,ncpts)
     }
-  }
-  if(cpttype(x)=="variance"){
-    abline(v=index(data.set.ts(x))[cpts.to.plot],col=cpt.col,lwd=cpt.width,lty=cpt.style)
-  }
-  else if(cpttype(x)=="mean"  ||  cpttype(x)=="mean and variance"){
-    if((test.stat(x)=="Normal")||(test.stat(x)=="CUSUM")){
-      means=param.est(param.est)$mean
+
+    if(cpttype(x)=="variance"){
+      abline(v=index(data.set.ts(x))[cpts.to.plot],col=cpt.col,lwd=cpt.width,lty=cpt.style)
     }
-    else if(test.stat(x)=="Gamma"){
-      means=param.est(param.est)$scale*param.est(param.est)$shape
-    }
-    else if(test.stat(x)=="Exponential"){
-      means=1/param.est(param.est)$rate
-    }
-    else if(test.stat(x)=="Poisson"){
-      means=param.est(param.est)$lambda
+    else if(cpttype(x)=="mean"  ||  cpttype(x)=="mean and variance"){
+      if((test.stat(x)=="Normal")||(test.stat(x)=="CUSUM")){
+        means=param.est(param.est)$mean
+      }
+      else if(test.stat(x)=="Gamma"){
+        means=param.est(param.est)$scale*param.est(param.est)$shape
+      }
+      else if(test.stat(x)=="Exponential"){
+        means=1/param.est(param.est)$rate
+      }
+      else if(test.stat(x)=="Poisson"){
+        means=param.est(param.est)$lambda
+      }
+      else{
+        stop('Invalid Changepoint test statistic')
+      }
+      nseg=length(means)
+      cpts.to.plot=c(0,cpts.to.plot,length(data.set(x)))
+      for(i in 1:nseg){
+        segments(index(data.set.ts(x))[cpts.to.plot[i]+1],means[i],index(data.set.ts(x))[cpts.to.plot[i+1]],means[i],col=cpt.col,lwd=cpt.width,lty=cpt.style)
+      }
     }
     else{
-      stop('Invalid Changepoint test statistic')
+      stop('Invalid Changepoint Type for plotting.\n Can only plot mean, variance, mean and variance')
     }
-    nseg=length(means)
-    cpts.to.plot=c(0,cpts.to.plot,length(data.set(x)))
-    for(i in 1:nseg){
-      segments(index(data.set.ts(x))[cpts.to.plot[i]+1],means[i],index(data.set.ts(x))[cpts.to.plot[i+1]],means[i],col=cpt.col,lwd=cpt.width,lty=cpt.style)
-    }
-  }
-  else{
-    stop('Invalid Changepoint Type for plotting.\n Can only plot mean, variance, mean and variance')
-  }
-})
+  }}})
 
 setMethod("plot","cpt.reg",function(x,cpt.col='red',cpt.width=1,cpt.style=1,...){
   if(length(param.est(x))==0){# i.e. parameter.estimates=FALSE in call
