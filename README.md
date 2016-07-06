@@ -28,6 +28,7 @@ changepoint::cpts(out)
 
 #returns 100 130 150 230 250 400 440 650 760 780 810 as the changepoint locations.
 
+plot(out)
 ```
 
-
+![alt tag](PELTexample.png) 
