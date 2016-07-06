@@ -14,7 +14,6 @@
 
 static int *checklist;
 static double *tmplike;
-static int *tmpt;
 
 void FreePELT(error)
   int *error; /* Error code from PELT C function, non-zero => error */
@@ -133,7 +132,6 @@ void FreePELT(error)
       last=lastchangecpts[last];
       ncpts+=1;
     }
-    err3:  free(tmplike);
     err2:  free(checklist);
     err1:  return;
   }
