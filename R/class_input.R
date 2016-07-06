@@ -19,3 +19,5 @@ class_input <- function(data, cpttype, method, test.stat, penalty, pen.value, mi
   return(ans)
 }
 
+
+
