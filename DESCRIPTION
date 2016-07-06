@@ -2,7 +2,7 @@ Package: changepoint.np
 Type: Package
 Title: Methods for Nonparametric Changepoint Detection
 Version: 0.0.2
-Date: 2016-05-26
+Date: 2016-07-06
 Author: c(person("Kaylea", "Haynes", role = c("aut", "cre"), email =
     "k.haynes1@lancaster.ac.uk"), person("Rebecca", "Killick", role="ctr"),
     person("Paul", "Fearnhead", role=c("ths", "ctr")), person("Idris", "Eckley",
