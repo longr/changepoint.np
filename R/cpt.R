@@ -28,7 +28,7 @@
 #' @seealso PELT in parametric settings: \code{\link[changepoint]{cpt.mean}} for changes in the mean, \code{\link[changepoint]{cpt.var}} for changes in the variance and \code{\link[changepoint]{cpt.meanvar}} for changes in the mean and variance.
 #'
 #' @examples #Example of a data set of length 1000 with changes in location
-#' (model 1 of Haynes, K et al. (2016)) with the empirical distribution cost function.
+#' #(model 1 of Haynes, K et al. (2016)) with the empirical distribution cost function.
 #'
 #' set.seed(12)
 #'
@@ -48,7 +48,7 @@
 #'
 #'out <- cpt.np(data, penalty = "SIC",method="PELT",test.stat="empirical_distribution",
 #'              class=TRUE,minseglen=2, nquantiles =4*log(length(data)))
-#'cpts(out)
+#'changepoint::cpts(out)
 #'
 #'#returns 100 130 150 230 250 400 440 650 760 780 810 as the changepoint locations.
 #'
