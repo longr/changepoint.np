@@ -55,7 +55,7 @@
 #'# Example 2 uses the heart rate data and the CROPS penalty. 
 #'
 #'cptHeartRate <- cpt.np(HeartRate, penalty = "CROPS", pen.value = c(25,200), method="PELT",
-#'    test.stat="empirical_distribution",class=TRUE,minseglen=2, nquantiles =4*log(length(data)))
+#'    test.stat="empirical_distribution",class=TRUE,minseglen=2, nquantiles =4*log(length(HeartRate)))
 #' 
 #' @useDynLib changepoint.np
 #' @import changepoint
