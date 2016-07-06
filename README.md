@@ -28,6 +28,20 @@ changepoint::cpts(out)
 
 #returns 100 130 150 230 250 400 440 650 760 780 810 as the changepoint locations.
 
+plot(out)
 ```
 
+![alt tag](PELTexample.png) 
 
+####### Heart Rate Example 
+
+This example uses heart rate data recorded using a wearable heart rate monitor whilst running.  We use the CROPS penalty in this situation.  The diagnostic plot gives us an idea of how many changes to choose (the point on the elbow). 
+```
+cptHeartRate <- cpt.np(HeartRate, penalty = "CROPS", pen.value = c(25,200), method="PELT",
+   test.stat="empirical_distribution",class=TRUE,minseglen=2, nquantiles =4*log(length(data)))
+
+plot(cptHeartRate, diagnostic = TRUE)
+plot(cptHeartRate, ncpts = 11)
+```
+![alt tag](elbow.png) 
+![alt tag](heartrate.png) 

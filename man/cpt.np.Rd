@@ -30,7 +30,7 @@ If \code{class=TRUE} then an object of S4 class "cpt" is returned.  The slot \co
 
 If data is a vector (single dataset) then a vector/list is returned depending on the value of method.  If data is a matrix (multiple datasets) then a list is returned where each element in the list is either a vector or list depending on the value of method.
 
-If method is PELT then a vector is returned containing the changepoint locations for the penalty supplied.  This always ends with n.  If the penalty is CROPS then a list is returned with the elements:
+If method is PELT then a vector is returned containing the changepoint locations for the penalty supplied. If the penalty is CROPS then a list is returned with the elements:
 
 \item{cpt.out}{A data frame containing the value of the penalty value where the number of segmentations chages, the number of segmentations and the value of the cost at that penalty value.}
 \item{changepoints}{The optimal changepoints for the different penalty values startings with the lowest penalty value.}
@@ -63,9 +63,20 @@ for (i in 1:n){
 
 out <- cpt.np(data, penalty = "SIC",method="PELT",test.stat="empirical_distribution",
              class=TRUE,minseglen=2, nquantiles =4*log(length(data)))
-changepoint::cpts(out)
+cpts(out)
 
 #returns 100 130 150 230 250 400 440 650 760 780 810 as the changepoint locations.
+
+plot(out)
+
+
+# Example 2 uses the heart rate data and the CROPS penalty. 
+
+cptHeartRate <- cpt.np(HeartRate, penalty = "CROPS", pen.value = c(25,200), method="PELT",
+   test.stat="empirical_distribution",class=TRUE,minseglen=2, nquantiles =4*log(length(data)))
+
+plot(cptHeartRate, diagnostic = TRUE)
+plot(cptHeartRate, ncpts = 11)
 
 }
 \author{
