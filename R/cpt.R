@@ -61,7 +61,7 @@
 #'    test.stat="empirical_distribution",class=TRUE,minseglen=2, nquantiles =4*log(length(data)))
 #' 
 #' plot(cptHeartRate, diagnostic = TRUE)
-#' plot(cptHeartRate, ncpts = 9)
+#' plot(cptHeartRate, ncpts = 11)
 #' 
 #' @useDynLib changepoint.np
 #' @import changepoint
