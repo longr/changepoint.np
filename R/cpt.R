@@ -52,13 +52,17 @@
 #'
 #'#returns 100 130 150 230 250 400 440 650 760 780 810 as the changepoint locations.
 #'
-#'# Example 2 uses the heart rate data and the CROPS penalty. 
+#'Example 2 uses the heart rate data . 
 #'
-#'#cptHeartRate <- cpt.np(HeartRate, penalty = "CROPS", pen.value = c(25,200), method="PELT",
-#'#    test.stat="empirical_distribution",class=TRUE,minseglen=2, nquantiles =4*log(length(HeartRate)))
+#'cptHeartRate <- cpt.np(HeartRate, penalty = "Manual", pen.value = 50, method="PELT",
+#'  test.stat="empirical_distribution",class=TRUE,minseglen=2, nquantiles =4*log(length(HeartRate)))
 #' 
 #' @useDynLib changepoint.np
-#' @import changepoint
+#' @import changepoint 
+#' @importFrom graphics abline lines segments
+#' @importFrom methods as new
+#' @importFrom stats is.ts ts var
+#' @importFrom utils packageVersion
 #' @export
 
 cpt.np=function(data,penalty="MBIC",pen.value=0,method="PELT",test.stat="empirical_distribution",class=TRUE,minseglen=1, nquantiles = 10){

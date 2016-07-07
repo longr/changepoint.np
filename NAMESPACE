@@ -2,4 +2,13 @@
 
 export(cpt.np)
 import(changepoint)
+importFrom(graphics,abline)
+importFrom(graphics,lines)
+importFrom(graphics,segments)
+importFrom(methods,as)
+importFrom(methods,new)
+importFrom(stats,is.ts)
+importFrom(stats,ts)
+importFrom(stats,var)
+importFrom(utils,packageVersion)
 useDynLib(changepoint.np)
