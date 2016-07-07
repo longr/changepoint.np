@@ -48,14 +48,14 @@
 #'
 #'out <- cpt.np(data, penalty = "SIC",method="PELT",test.stat="empirical_distribution",
 #'              class=TRUE,minseglen=2, nquantiles =4*log(length(data)))
-#'changepoint::cpts(out)
+#'cpts(out)
 #'
 #'#returns 100 130 150 230 250 400 440 650 760 780 810 as the changepoint locations.
 #'
 #'# Example 2 uses the heart rate data and the CROPS penalty. 
 #'
-#'cptHeartRate <- cpt.np(HeartRate, penalty = "CROPS", pen.value = c(25,200), method="PELT",
-#'    test.stat="empirical_distribution",class=TRUE,minseglen=2, nquantiles =4*log(length(HeartRate)))
+#'#cptHeartRate <- cpt.np(HeartRate, penalty = "CROPS", pen.value = c(25,200), method="PELT",
+#'#    test.stat="empirical_distribution",class=TRUE,minseglen=2, nquantiles =4*log(length(HeartRate)))
 #' 
 #' @useDynLib changepoint.np
 #' @import changepoint

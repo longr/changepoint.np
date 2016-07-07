@@ -12,8 +12,7 @@ Description: Implements the multiple changepoint algorithm PELT with a
     nonparametric cost function based on the empirical distribution of the data. The cpt.np() function should be your first point of call.
     This package is an extension to the \code{changepoint} package which uses parametric changepoint methods.  For further information on the methods see the
     documentation for \code{changepoint}.
-Imports: changepoint
-Depends: R(>= 3.2)
+Depends: R(>= 3.2), changepoint
 License: GPL
 LazyData: TRUE
 RoxygenNote: 5.0.1
