@@ -761,7 +761,7 @@ setMethod("plot","cpt",function(x,cpt.col='red',cpt.width=1,cpt.style=1,...){
     cat('done.\n')
   }
   plot(data.set.ts(x),...)
-  if(cpttype(x)=="variance"){
+  if(cpttype(x)=="variance" || cpttype(x)=="nonparametric (empirical_distribution)"){
     abline(v=index(data.set.ts(x))[cpts(x)],col=cpt.col,lwd=cpt.width,lty=cpt.style)
   }
   else if(cpttype(x)=="mean"  ||  cpttype(x)=="mean and variance"){
