@@ -1,10 +1,15 @@
-Version 0.1.1: 
+Version 0.0.3:
+=============
+
+*Removed cpt.class.R as these are now imported from the changpeoint package, nothing changes for the user 
+
+Version 0.0.2: 
 =============
 
 *changed from NPPELT or EDPELT to just using PELT. 
 *removed some of the functions copied from the changepointpackage since these have now been exported from changepoint. 
 
-Version 0.1.0: Original
+Version 0.0.0: Original
 =============
 
 I created this package for nonparametric changepoint detection initially using PELT with a cost function
