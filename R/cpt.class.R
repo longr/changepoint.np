@@ -465,7 +465,11 @@ setMethod("param", "cpt", function(object,shape,...) {
     
     return(cbind(beta,thetajpo,thetaj))
   }
-  if(cpttype(object)=="mean"){
+  
+  if(cpttype(object)=="nonparametric (empirical_distribution)"){
+    param.est = NA
+  }
+  else if(cpttype(object)=="mean"){
     param.est(object)<-list(mean=param.mean(object))
   }
   else if(cpttype(object)=="variance"){
