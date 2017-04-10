@@ -65,41 +65,66 @@
 #' @importFrom utils packageVersion
 #' @export
 
-cpt.np=function(data,penalty="MBIC",pen.value=0,method="PELT",test.stat="empirical_distribution",class=TRUE,minseglen=1, nquantiles = 10){
-  # checkData(data)
-    if(minseglen<1){minseglen=1;warning('Minimum segment length cannot be less than 1, automatically changed to be 1.')}
-    if((method == "PELT")&&(test.stat!="empirical_distribution")){ stop("Invalid test statistic, PELT must only be used with the empirical_distribution")}
-
+cpt.np=function(data,penalty="MBIC",pen.value=0,method="PELT",test.stat="empirical_distribution",
+                class=TRUE,minseglen=1, test.param = 10){
+                                        # checkData(data)
+    if(minseglen < 1){
+        minseglen = 1
+        warning('Minimum segment length cannot be less than 1, automatically changed to be 1.')
+    }
     # Check for PELT method, and then run function depending on penalty.
     if(method == "PELT"){
-        # Check if CROPS is penalty then do sanity checks for basic requirements.
-        if(penalty == "CROPS"){
-
-            if(!is.numeric(pen.value)){
-                stop('For CROPS, pen.value must be supplied as a numeric vector and must be of length 2')
+        if(test.stat == "empirical_distribution"){
+                                        # if test.param not set, default is 10 for empirical distribution.
+            if( test.param = NA ){
+                test.param = 10
             }
-
-            if(length(pen.value) != 2){
-                stop('The length of pen.value must be 2')
-            }
-
-            if(pen.value[2] < pen.value[1]){
-                pen.value = rev(pen.value)
-            }
+                                        # Check if CROPS is penalty then do sanity checks for basic requirements.
+            if(penalty == "CROPS"){
+                
+                if(!is.numeric(pen.value)){
+                    stop('For CROPS, pen.value must be supplied as a numeric vector and must be of length 2')
+                }
+                
+                if(length(pen.value) != 2){
+                    stop('The length of pen.value must be 2')
+                }
+                
+                if(pen.value[2] < pen.value[1]){
+                    pen.value = rev(pen.value)
+                }
                                         #run range of penalties
-            return(CROPS(data=data, method=method, pen.value=pen.value,
-                         test.stat=test.stat, class=class, minseglen=minseglen,
-                         nquantiles=nquantiles, func="nonparametric"))
-        }
+                return(CROPS(data=data, method=method, pen.value=pen.value,
+                             test.stat=test.stat, class=class, minseglen=minseglen,
+                             nquantiles=test.param, func="nonparametric"))
+            }
                                         # If CROPS is not the penalty, call multiple.nonparametric.ed, which
                                         # contains further checks for valid penalties, so no need to repeat here.
+            else{
+                return(multiple.nonparametric.ed(data,mul.method=method,penalty,pen.value,class,
+                                                 minseglen, nquantiles=test.param))
+            }
+        }
         else{
-            return(multiple.nonparametric.ed(data,mul.method=method,penalty,pen.value,class,minseglen, nquantiles))
+            stop("Invalid test statistic, PELT must only be used with the empirical_distribution")            
         }
     }
+    # Check for rob.fpop method.
+    else if(method == "rob.fpop"){
+        # Error with message if test.statistic is not valid for method.
+        if( test.stat != "Normal" &&
+            test.stat != "Laplace" &&
+            test.stat != "Huber" &&
+            test.stat != "Outlier"){
+            stop( "Laplace, Normal, Huber, and Outlier are the only allowed test statistics for robust fpop.")
+        }
+        
+        return(fpop_intern(data,test.stat="Normal",pen.value,lthreshold=test.parameter))
+        
+        
+    }
     else{
-        stop("Invalid Method, only choice is PELT".)
+        stop("Invalid Method, only choice is PELT or rob.fpop".)
     }
         
 }
-
