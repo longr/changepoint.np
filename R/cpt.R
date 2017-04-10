@@ -112,14 +112,14 @@ cpt.np=function(data,penalty="MBIC",pen.value=0,method="PELT",test.stat="empiric
     # Check for rob.fpop method.
     else if(method == "rob.fpop"){
         # Error with message if test.statistic is not valid for method.
-        if( test.stat != "Normal" &&
-            test.stat != "Laplace" &&
+        if( test.stat != "l2" &&
+            test.stat != "l1" &&
             test.stat != "Huber" &&
             test.stat != "Outlier"){
-            stop( "Laplace, Normal, Huber, and Outlier are the only allowed test statistics for robust fpop.")
+            stop( "l1, l2, Huber, and Outlier are the only allowed values of test.stat for robust fpop.")
         }
         
-        return(fpop_intern(data,test.stat="Normal",pen.value,lthreshold=test.parameter))
+        return(fpop_intern(data,test.stat="l2",pen.value,lthreshold=test.parameter))
         
         
     }
