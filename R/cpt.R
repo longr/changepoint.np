@@ -76,7 +76,7 @@ cpt.np=function(data,penalty="MBIC",pen.value=0,method="PELT",test.stat="empiric
     if(method == "PELT"){
         if(test.stat == "empirical_distribution"){
                                         # if test.param not set, default is 10 for empirical distribution.
-            if( test.param = NA ){
+            if( test.param == NA ){
                 test.param = 10
             }
                                         # Check if CROPS is penalty then do sanity checks for basic requirements.
