@@ -6,7 +6,7 @@
 \usage{
 cpt.np(data, penalty = "MBIC", pen.value = 0, method = "PELT",
   test.stat = "empirical_distribution", class = TRUE, minseglen = 1,
-  nquantiles = 10)
+  test.param = 10)
 }
 \arguments{
 \item{data}{A vector, ts object or matrix containing the data within which you wish to find a changepoint.  If the data is a matrix, each row is considered as a separate dataset.}
@@ -23,7 +23,7 @@ cpt.np(data, penalty = "MBIC", pen.value = 0, method = "PELT",
 
 \item{minseglen}{Positive integer giving the minimum segment length (number of observations between changes), default is the minimum allowed by theory.}
 
-\item{nquantiles}{The number of quantiles to calculate when test.stat = "empirical_distribution".}
+\item{test.param}{Additional values required by methods and/or distributions. .For test.stat = "empirical_distribution", this is the number of quantiles to calculate; For method == "rob.fpop", this is the lthreshold.}
 }
 \value{
 If \code{class=TRUE} then an object of S4 class "cpt" is returned.  The slot \code{cpts} contains the changepoints that are returned.  For \code{class=FALSE} the structure is as follows.
@@ -62,7 +62,7 @@ for (i in 1:n){
 }
 
 out <- cpt.np(data, penalty = "SIC",method="PELT",test.stat="empirical_distribution",
-             class=TRUE,minseglen=2, nquantiles =4*log(length(data)))
+             class=TRUE,minseglen=2, test.param =4*log(length(data)))
 cpts(out)
 
 #returns 100 130 150 230 250 400 440 650 760 780 810 as the changepoint locations.
@@ -70,11 +70,8 @@ cpts(out)
 #Example 2 uses the heart rate data . 
 
 cptHeartRate <- cpt.np(HeartRate, penalty = "Manual", pen.value = 50, method="PELT",
- test.stat="empirical_distribution",class=TRUE,minseglen=2, nquantiles =4*log(length(HeartRate)))
+ test.stat="empirical_distribution",class=TRUE,minseglen=2, test.param =4*log(length(HeartRate)))
 
-}
-\author{
-Kaylea Haynes
 }
 \references{
 PELT with an Empirical Distribution cost function: Haynes K, Fearnhead P, Eckley I A (2016) A computationally efficient nonparametric approach for changepoint detection, Statistics and Computed (accepted)
@@ -86,4 +83,6 @@ CROPS: Haynes K, Eckley I A, Fearnhead P (2015) Computationally Efficient Change
 \seealso{
 PELT in parametric settings: \code{\link[changepoint]{cpt.mean}} for changes in the mean, \code{\link[changepoint]{cpt.var}} for changes in the variance and \code{\link[changepoint]{cpt.meanvar}} for changes in the mean and variance.
 }
-
+\author{
+Kaylea Haynes
+}

@@ -11,11 +11,10 @@ HeartRate
 \description{
 A dataset containing heart-rate recorded duing a run.
 }
-\author{
-Kaylea Haynes
-}
 \references{
 For details see: Haynes K, Fearnhead P, Eckley I A (2016) A computationally efficient nonparametric approach for changepoint detection, Statistics and Computed (accepted)
 }
+\author{
+Kaylea Haynes
+}
 \keyword{datasets}
-

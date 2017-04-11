@@ -16,4 +16,4 @@ Depends: R(>= 3.2), changepoint
 Imports: methods 
 License: GPL
 LazyData: TRUE
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
