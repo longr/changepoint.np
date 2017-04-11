@@ -8,7 +8,7 @@
 #' @param test.stat The assumed test statistic/distribution of the data. Currently only "empirical_distribution".
 #' @param class Logical. If TRUE then an object of class cpt is returned.
 #' @param minseglen Positive integer giving the minimum segment length (number of observations between changes), default is the minimum allowed by theory.
-#' @param nquantiles The number of quantiles to calculate when test.stat = "empirical_distribution".
+#' @param test.param Additional values required by methods and/or distributions. .For test.stat = "empirical_distribution", this is the number of quantiles to calculate; For method == "rob.fpop", this is the lthreshold.
 #'
 #' @details This function is used to find multiple changes in a data set using the changepoint algorithm PELT with a nonparametric cost function based on the empirical distribution.  A changepoint is denoted as the first observation of the new segment.
 #' @return  If \code{class=TRUE} then an object of S4 class "cpt" is returned.  The slot \code{cpts} contains the changepoints that are returned.  For \code{class=FALSE} the structure is as follows.
@@ -47,7 +47,7 @@
 #' }
 #'
 #'out <- cpt.np(data, penalty = "SIC",method="PELT",test.stat="empirical_distribution",
-#'              class=TRUE,minseglen=2, nquantiles =4*log(length(data)))
+#'              class=TRUE,minseglen=2, test.param =4*log(length(data)))
 #'cpts(out)
 #'
 #'#returns 100 130 150 230 250 400 440 650 760 780 810 as the changepoint locations.
@@ -55,7 +55,7 @@
 #'#Example 2 uses the heart rate data . 
 #'
 #'cptHeartRate <- cpt.np(HeartRate, penalty = "Manual", pen.value = 50, method="PELT",
-#'  test.stat="empirical_distribution",class=TRUE,minseglen=2, nquantiles =4*log(length(HeartRate)))
+#'  test.stat="empirical_distribution",class=TRUE,minseglen=2, test.param =4*log(length(HeartRate)))
 #' 
 #' @useDynLib changepoint.np
 #' @import changepoint 
@@ -76,7 +76,7 @@ cpt.np=function(data,penalty="MBIC",pen.value=0,method="PELT",test.stat="empiric
     if(method == "PELT"){
         if(test.stat == "empirical_distribution"){
                                         # if test.param not set, default is 10 for empirical distribution.
-            if( test.param == NA ){
+            if( is.na(test.param) ){
                 test.param = 10
             }
                                         # Check if CROPS is penalty then do sanity checks for basic requirements.
