@@ -124,7 +124,7 @@ cpt.np=function(data,penalty="MBIC",pen.value=0,method="PELT",test.stat="empiric
         
     }
     else{
-        stop("Invalid Method, only choice is PELT or rob.fpop".)
+        stop("Invalid Method, only choice is PELT or rob.fpop.")
     }
         
 }
