@@ -1,5 +1,5 @@
 
-nonparametric.ed.sumstat = function(data,K=nquantiles){ # This now takes into account the integral transformation
+nonparametric.ed.sumstat = function(data,K=10){ # This now takes into account the integral transformation
   ##USE K points in integral
   n <- length(data)
   if(K>n) K=n
