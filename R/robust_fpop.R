@@ -1,31 +1,25 @@
 ############# Wrapper for chngpnt
-fpop_intern <- structure(function
 ### internal function to call the robust fpop algorithm using
 ### some standard parametrization of the loss function
-### for now this include the L2 loss (Normal), L1 loss (Laplace), Huber loss and outlier loss
-### (Note that to be coherent with changepoint the loss corresponds to
-### the test.stat parameter)
-(
-x,
-### A vector of double : the signal to be segmented
-test.stat="Normal",
-### The assumed test statisticis or distribution. It can be either Normal, Laplace,
-### Huber or Outlier
-pen.value,
-### penalty value
-lthreshold=NA
-### threshold parameters for the Huber and Outlier test.stat.
+### for now this include the L1 loss (Laplace), Huber loss
+### and outlier loss (Note that to be coherent with changepoint the loss
+### corresponds to the test.stat parameter)
+
+fpop_intern <- structure(function(x,test.stat="Outlier",pen.value,lthreshold=NA,class=TRUE){
+### x, A vector of double : the signal to be segmented
+### test.stat, The assumed test statisticis or distribution. It can be either
+### L1, Huber or Outlier
+### lthreshold, threshold parameters for the Huber and Outlier test.stat.
 ### By default for Huber we take 1.345
 ### By default for Outlier we take 3
-){
 
+    
 ################################################################################
 ## provide an lthreshold value if lthreshold value if it is not provided
 ################################################################################
 if(is.na(lthreshold)){
   lthreshold <- switch(test.stat,
-                       Laplace = NA,
-                       Normal  = NA,
+                       L1 = NA,
                        Huber   = 1.345,
                        Outlier = 3)
 }
@@ -34,11 +28,8 @@ if(is.na(lthreshold)){
 ## call core fpop function
 ################################################################################
 tmp.res <- switch(test.stat,
-           ### Laplace
-           Laplace = Rob_seg(x, lambda=pen.value, lthreshold=0, lslope=-1),
-
-           ### Normal
-           Normal  = Rob_seg(x, lambda=pen.value, lthreshold=diff(range(x))),
+           ### L1
+           L1 = Rob_seg(x, lambda=pen.value, lthreshold=0, lslope=-1),
 
            ### Huber
            Huber   = Rob_seg(x, lambda=pen.value, lthreshold=lthreshold,
@@ -52,7 +43,7 @@ tmp.res <- switch(test.stat,
 ## add some missing argument for changepoints
 ################################################################################
 
-tmp.res$method <- "rob.fpop"
+tmp.res$method <- "FPOP"
 tmp.res$test.stat <- test.stat
 tmp.res$minseglen <- 1
 ## (Note for the outlier loss the min length depends on the penalty and threshold)
@@ -62,7 +53,7 @@ tmp.res$minseglen <- 1
 ################################################################################
 
 ##
-link.param <- matrix(nc=3, byrow=T,
+link.param <- matrix(ncol=3, byrow=T,
 data=c("signal",     "data",         "keep",
   "n",          "n",            "discard",
   "lambda",     "pen.value",    "keep",
@@ -86,21 +77,27 @@ data=c("signal",     "data",         "keep",
 
 toKeep <- which(link.param[, 3] == "keep")
 
-names(tmp.res)[match(link.param[, 1], names(tmp.res))] <- link.param[, 2]
+ind=match(link.param[, 1], names(tmp.res))[!is.na(match(link.param[, 1], names(tmp.res)))]
+names(tmp.res)[ind] <- link.param[match(names(tmp.res),link.param[, 1]), 2]
 
-return(tmp.res)
+if(class==TRUE){
+  return(class_input(x, cpttype="nonparametric", method="FPOP", test.stat=test.stat, penalty='Manual',
+                     pen.value=pen.value, minseglen=1, out=tmp.res))
+}
+else{
+  return(tmp.res)
+}
+
 }, ex=function(){
   x <- c(rnorm(100), rnorm(100)+2)
   std.dev <- mad(diff(x)/sqrt(2))
   x_ <- x/std.dev
   lambda = log(length(x))
-  res.l1 <- fpop_intern(x_,  "Laplace", pen.value=lambda)
-  res.l2 <- fpop_intern(x_,  "Normal", pen.value=2*lambda)
+  res.l1 <- fpop_intern(x_,  "L1", pen.value=lambda)
   res.Hu <- fpop_intern(x_,  "Huber", pen.value=1.4*lambda, lthreshold=1.345)
   res.Ou <- fpop_intern(x_,  "Outlier", pen.value=2*lambda, lthreshold=3)
   plot(x_, pch=20)
-  matlines(data.frame(res.l1$smt.signal, res.l2$smt.signal,
-                      res.Hu$smt.signal, res.Ou$smt.signal), lty=2, lwd=2)
+  matlines(data.frame(res.l1$smt.signal, res.Hu$smt.signal, res.Ou$smt.signal), lty=2, lwd=2)
 }
 )
 
@@ -135,7 +132,7 @@ maxi=max(x)
 		lslope=as.double(lslope), rslope=as.double(rslope),
 		min=as.double(mini), max=as.double(maxi),
 		path=integer(n), cost=double(n) , mean=double(n)
-	, PACKAGE="robseg")
+	, PACKAGE="changepoint.np")
     A$t.est <- getPath(A$path, n)
     A$smt <- rep(A$mean[A$t.est], diff(c(0, A$t.est)))
     ## does not always make sense in particular if L1...
@@ -171,25 +168,21 @@ getPath <- function
 ######################## Standard.
 
 Rob_seg.std <- structure(function
-### main function to use fpop for L1, L2, Huber and biweight (outlier) losses
+### main function to use fpop for L1, Huber and biweight (outlier) losses
 (
 x,
 ### A vector of double : the signal to be segmented
 loss="L1",
-### loss function (L1, L2, Huber and outlier)
+### loss function (L1, Huber and outlier)
 lambda,
 ### penalty value
 lthreshold
-### for L1 (none), for L2 (none), for Huber typically 1.345 if sd=1, for Outlier typically 3 if sd=1
+### for L1 (none), for Huber typically 1.345 if sd=1, for Outlier typically 3 if sd=1
 ){
 
 if(loss=="L1"){
   Rob_seg(x, lambda=lambda, lthreshold=0, lslope=-1)-> res
 }
-if(loss=="L2"){
-  Rob_seg(x, lambda=lambda, lthreshold=diff(range(x)))-> res
-}
-
 if("Huber" == loss){
   Rob_seg(x, lambda=lambda, lthreshold=lthreshold, lslope=-2*lthreshold) -> res
 }
@@ -205,11 +198,10 @@ return(res)
   x_ <- x/std.dev
   lambda = log(length(x))
   res.l1 <- Rob_seg.std(x_,  "L1", lambda=lambda)
-  res.l2 <- Rob_seg.std(x_,  "L2", lambda=2*lambda)
   res.Hu <- Rob_seg.std(x_,  "Huber", lambda=1.4*lambda, lthreshold=1.345)
   res.Ou <- Rob_seg.std(x_,  "Outlier", lambda=2*lambda, lthreshold=3)
   plot(x_, pch=20)
-  matlines(data.frame(res.l1$smt, res.l2$smt, res.Hu$smt, res.Ou$smt), lty=2, lwd=2)
+  matlines(data.frame(res.l1$smt, res.Hu$smt, res.Ou$smt), lty=2, lwd=2)
 }
 
 )
