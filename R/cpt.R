@@ -4,13 +4,13 @@
 #' @param data A vector, ts object or matrix containing the data within which you wish to find a changepoint.  If the data is a matrix, each row is considered as a separate dataset.
 #' @param penalty Choice of "None", "SIC", "BIC", "MBIC", AIC", "Hannan-Quinn", "Manual" and "CROPS" penalties.  If Manual is specified, the manual penalty is contained in the pen.value parameter. If CROPS is specified, the penalty range is contained in the pen.value parameter; note this is a vector of length 2 which contains the minimum and maximum penalty value.  Note CROPS can only be used if the method is "PELT". The predefined penalties listed DO count the changepoint as a parameter, postfix a 0 e.g."SIC0" to NOT count the changepoint as a parameter.
 #' @param pen.value The value of the penalty when using the Manual penalty option.  A vector of length 2 (min,max) if using the CROPS penalty.
-#' @param method Currently the only method is "PELT".
-#' @param test.stat The assumed test statistic/distribution of the data. Currently only "empirical_distribution".
+#' @param method There are two methods available "PELT" and "FPOP".
+#' @param test.stat The assumed test statistic/distribution of the data. If using the "PELT" method, currently only "empirical_distribution" is available. For the "FPOP" method, "L1", "Huber", and "Outlier" are available.
 #' @param class Logical. If TRUE then an object of class cpt is returned.
 #' @param minseglen Positive integer giving the minimum segment length (number of observations between changes), default is the minimum allowed by theory.
-#' @param test.param Additional values required by methods and/or distributions. .For test.stat = "empirical_distribution", this is the number of quantiles to calculate; For method == "rob.fpop", this is the lthreshold.
+#' @param test.param Additional values required by methods and/or distributions. .For test.stat = "empirical_distribution", this is the number of quantiles to calculate; For method == "FPOP", this is the lthreshold.
 #'
-#' @details This function is used to find multiple changes in a data set using the changepoint algorithm PELT with a nonparametric cost function based on the empirical distribution.  A changepoint is denoted as the first observation of the new segment.
+#' @details This function is used to find multiple changes in a data set using either of two changepoint algorithms. The two choices are:PELT with a nonparametric cost function based on the empirical distribution; and "FPOP" with a nonparametric cost function based on the L1, Huber or Outlier loss.  A changepoint is denoted as the first observation of the new segment.
 #' @return  If \code{class=TRUE} then an object of S4 class "cpt" is returned.  The slot \code{cpts} contains the changepoints that are returned.  For \code{class=FALSE} the structure is as follows.
 #'
 #' If data is a vector (single dataset) then a vector/list is returned depending on the value of method.  If data is a matrix (multiple datasets) then a list is returned where each element in the list is either a vector or list depending on the value of method.
@@ -24,6 +24,8 @@
 #' @references PELT with an Empirical Distribution cost function: Haynes K, Fearnhead P, Eckley I A (2016) A computationally efficient nonparametric approach for changepoint detection, Statistics and Computed (accepted)
 #' @references PELT Algorithm: Killick R, Fearnhead P, Eckley I A (2012) Optimal detection of changepoints with a linear computational cost, \emph{JASA 107(500), 1590-1598}
 #' @references CROPS: Haynes K, Eckley I A, Fearnhead P (2015) Computationally Efficient Changepoint Detection for a Range of Penalties, \emph{JCGS, To Appear}
+#' @references FPOP with L1, Huber and Outlier Losses: Paul Fearnhead, Guillem Rigaill (2016) Changepoint Detection in the Presence of Outliers
+#' @references FPOP: Robert Maidstone, Toby Hocking, Guillem Rigaill, Paul Fearnhead (2014) On Optimal Multiple Changepoint Algorithms for Large Data
 #'
 #' @seealso PELT in parametric settings: \code{\link[changepoint]{cpt.mean}} for changes in the mean, \code{\link[changepoint]{cpt.var}} for changes in the variance and \code{\link[changepoint]{cpt.meanvar}} for changes in the mean and variance.
 #'
@@ -56,6 +58,21 @@
 #'
 #'cptHeartRate <- cpt.np(HeartRate, penalty = "Manual", pen.value = 50, method="PELT",
 #'  test.stat="empirical_distribution",class=TRUE,minseglen=2, test.param =4*log(length(HeartRate)))
+#' 
+#' 
+#' #Example 3
+#' 
+#' x <- c(rnorm(100), rnorm(100)+2)
+#' std.dev <- mad(diff(x)/sqrt(2))
+#' x_ <- x/std.dev
+#' lambda = log(length(x))
+#' res.l1 <- fpop_intern(x_,  "L1", pen.value=lambda)
+#' res.Hu <- fpop_intern(x_,  "Huber", pen.value=1.4*lambda, lthreshold=1.345)
+#' res.Ou <- fpop_intern(x_,  "Outlier", pen.value=2*lambda, lthreshold=3)
+#' plot(x_, pch=20)
+#' matlines(data.frame(res.l1$smt.signal, res.Hu$smt.signal, res.Ou$smt.signal), lty=2, lwd=2)
+#' }
+#' 
 #' 
 #' @useDynLib changepoint.np
 #' @import changepoint 
@@ -110,21 +127,18 @@ cpt.np=function(data,penalty="MBIC",pen.value=0,method="PELT",test.stat="empiric
         }
     }
     # Check for rob.fpop method.
-    else if(method == "rob.fpop"){
+    else if(method == "FPOP"){
         # Error with message if test.statistic is not valid for method.
-        if( test.stat != "l2" &&
-            test.stat != "l1" &&
+        if( test.stat != "L1" &&
             test.stat != "Huber" &&
             test.stat != "Outlier"){
-            stop( "l1, l2, Huber, and Outlier are the only allowed values of test.stat for robust fpop.")
+            stop( "L1, Huber, and Outlier are the only allowed values of test.stat for method='FPOP'.")
         }
         
-        return(fpop_intern(data,test.stat="l2",pen.value,lthreshold=test.parameter))
-        
-        
+        return(fpop_intern(data,test.stat=test.stat,pen.value,lthreshold=test.param,class=class))
     }
     else{
-        stop("Invalid Method, only choice is PELT or rob.fpop.")
+        stop("Invalid Method, only choice is PELT or FPOP.")
     }
         
 }
